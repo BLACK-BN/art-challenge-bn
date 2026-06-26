@@ -2,7 +2,7 @@
   "name": "Nova Voraz — Missões",
   "short_name": "NV Missões",
   "description": "Sistema de missões de desenho — universo de Nova Voraz",
-  "start_url": "/",
+  "start_url": "/https://black-bn.github.io/art-challenge-bn/",
   "display": "standalone",
   "background_color": "#0a0b0f",
   "theme_color": "#00e5ff",
