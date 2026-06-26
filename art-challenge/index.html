@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#00e5ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Missões">
+<link rel="manifest" href="manifest.json">
+<title>SISTEMA DE MISSÕES</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@700;900&display=swap');
+
+  :root {
+    --bg:      #0a0b0f;
+    --surface: #10131a;
+    --border:  #1e2535;
+    --neon-c:  #00e5ff;
+    --neon-m:  #ff2d78;
+    --neon-y:  #ffd600;
+    --text:    #c8d0e0;
+    --muted:   #4a5570;
+    --easy:    #39ff14;
+    --medium:  #ffd600;
+    --hard:    #ff2d78;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(to bottom, transparent, transparent 2px, rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
+    pointer-events: none; z-index: 999;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrapper {
+    position: relative; z-index: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 28px 16px 100px;
+  }
+
+  /* HEADER */
+  .header { text-align: center; margin-bottom: 28px; }
+
+  .header-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--neon-c);
+    letter-spacing: 4px; text-transform: uppercase;
+    margin-bottom: 6px; opacity: 0.6;
+  }
+
+  .header h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(18px, 5vw, 30px);
+    font-weight: 900; color: #fff;
+    text-shadow: 0 0 10px var(--neon-c), 0 0 30px rgba(0,229,255,0.25);
+    letter-spacing: 3px;
+  }
+
+  .header h1 span {
+    color: var(--neon-m);
+    text-shadow: 0 0 10px var(--neon-m), 0 0 30px rgba(255,45,120,0.25);
+  }
+
+  .header-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; color: var(--muted);
+    margin-top: 8px; letter-spacing: 1px;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-c), transparent);
+    margin: 20px 0; opacity: 0.3;
+  }
+
+  /* FILTROS */
+  .filters-wrap { margin-bottom: 20px; }
+
+  .filter-group {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 8px; align-items: center;
+  }
+
+  .filter-group-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; color: var(--muted);
+    letter-spacing: 2px; text-transform: uppercase;
+    width: 100%; margin-bottom: 2px;
+  }
+
+  .filter-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; letter-spacing: 1.5px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--muted);
+    cursor: pointer; text-transform: uppercase;
+    transition: all 0.15s;
+    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+  }
+
+  .filter-btn:hover { border-color: var(--neon-c); color: var(--neon-c); }
+
+  .filter-btn.active-oc    { border-color: var(--neon-c);  color: var(--neon-c);  background: rgba(0,229,255,0.08); }
+  .filter-btn.active-genre { border-color: var(--neon-m);  color: var(--neon-m);  background: rgba(255,45,120,0.08); }
+  .filter-btn.active-type  { border-color: var(--neon-y);  color: var(--neon-y);  background: rgba(255,214,0,0.08); }
+  .filter-btn.active-diff  {
+    border-color: var(--active-diff-color, var(--neon-c));
+    color: var(--active-diff-color, var(--neon-c));
+    background: var(--active-diff-bg, rgba(0,229,255,0.08));
+  }
+
+  .filter-clear {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; letter-spacing: 1px;
+    padding: 4px 10px;
+    border: 1px dashed var(--border);
+    background: transparent; color: var(--muted);
+    cursor: pointer; text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .filter-clear:hover { border-color: var(--neon-m); color: var(--neon-m); }
+
+  .filter-count {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--muted);
+    text-align: right; margin-bottom: 16px;
+    letter-spacing: 1px;
+  }
+
+  .filter-count span { color: var(--neon-c); }
+
+  /* ROLL */
+  .roll-area { text-align: center; margin-bottom: 24px; }
+
+  .roll-btn {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 3px; padding: 13px 32px;
+    border: 2px solid var(--neon-m);
+    background: transparent; color: var(--neon-m);
+    cursor: pointer; text-transform: uppercase;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: all 0.2s; position: relative; overflow: hidden;
+  }
+
+  .roll-btn::before {
+    content: ''; position: absolute; inset: 0;
+    background: var(--neon-m); opacity: 0; transition: opacity 0.2s;
+  }
+
+  .roll-btn:hover::before { opacity: 0.08; }
+  .roll-btn:hover { box-shadow: 0 0 18px rgba(255,45,120,0.35); text-shadow: 0 0 8px var(--neon-m); }
+  .roll-btn:active { transform: scale(0.97); }
+
+  /* CARD */
+  .mission-display {
+    min-height: 140px; display: flex;
+    align-items: center; justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px 24px; position: relative;
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+    animation: cardIn 0.25s ease;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--card-accent, var(--neon-c)), transparent);
+  }
+
+  .card-corner {
+    position: absolute; top: 0; right: 0;
+    width: 0; height: 0; border-style: solid;
+    border-width: 0 18px 18px 0;
+    border-color: transparent var(--card-accent, var(--neon-c)) transparent transparent;
+    opacity: 0.5;
+  }
+
+  .card-meta {
+    display: flex; align-items: center;
+    gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+  }
+
+  .card-diff {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; letter-spacing: 2px;
+    padding: 2px 8px; border: 1px solid; text-transform: uppercase;
+  }
+  .card-diff.facil   { color: var(--easy);   border-color: var(--easy);   background: rgba(57,255,20,0.08); }
+  .card-diff.medio   { color: var(--medium);  border-color: var(--medium);  background: rgba(255,214,0,0.08); }
+  .card-diff.dificil { color: var(--hard);    border-color: var(--hard);    background: rgba(255,45,120,0.08); }
+
+  .card-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; letter-spacing: 1px;
+    padding: 2px 8px; border: 1px solid; text-transform: uppercase;
+  }
+
+  .card-time {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--neon-y);
+    letter-spacing: 1px; margin-left: auto;
+  }
+
+  .card-title {
+    font-size: 19px; font-weight: 700;
+    color: #fff; margin-bottom: 8px; line-height: 1.2;
+  }
+
+  .card-desc {
+    font-size: 14px; color: var(--text);
+    line-height: 1.5; margin-bottom: 14px;
+  }
+
+  .card-tip {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--muted);
+    border-left: 2px solid var(--card-accent, var(--neon-c));
+    padding-left: 10px; line-height: 1.5;
+  }
+
+  .card-tip strong { color: var(--card-accent, var(--neon-c)); }
+
+  /* EMPTY */
+  .empty {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px; color: var(--muted);
+    text-align: center; letter-spacing: 1px;
+  }
+
+  /* LISTA */
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; letter-spacing: 3px;
+    color: var(--muted); text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .mission-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .mission-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; transition: all 0.15s;
+  }
+
+  .mission-item:hover, .mission-item:active {
+    border-color: var(--neon-c);
+    background: rgba(0,229,255,0.04);
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%; flex-shrink: 0;
+  }
+  .dot.facil   { background: var(--easy);   box-shadow: 0 0 5px var(--easy); }
+  .dot.medio   { background: var(--medium);  box-shadow: 0 0 5px var(--medium); }
+  .dot.dificil { background: var(--hard);    box-shadow: 0 0 5px var(--hard); }
+
+  .mission-item-name { font-size: 13px; font-weight: 600; flex: 1; color: var(--text); }
+
+  .mission-item-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+
+  .mini-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; letter-spacing: 1px;
+    padding: 1px 6px; border: 1px solid; text-transform: uppercase;
+  }
+
+  .mission-item-time {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; color: var(--neon-y); white-space: nowrap;
+  }
+
+  /* INSTALL BANNER */
+  #installBanner {
+    display: none;
+    position: fixed; bottom: 16px;
+    left: 50%; transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--neon-c);
+    padding: 12px 18px; gap: 12px;
+    align-items: center; z-index: 100;
+    width: calc(100% - 32px); max-width: 500px;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    box-shadow: 0 0 20px rgba(0,229,255,0.12);
+  }
+  #installBanner.visible { display: flex; }
+
+  #installBanner span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: var(--text); letter-spacing: 1px; flex: 1;
+  }
+
+  .install-btn {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px; font-weight: 700; letter-spacing: 2px;
+    padding: 6px 14px; border: 1px solid var(--neon-c);
+    background: rgba(0,229,255,0.1); color: var(--neon-c); cursor: pointer;
+  }
+
+  .dismiss-btn {
+    background: none; border: none;
+    color: var(--muted); cursor: pointer;
+    font-size: 15px; line-height: 1; padding: 0 2px;
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center; margin-top: 40px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; color: var(--muted); letter-spacing: 2px;
+  }
+
+  .flicker { animation: flicker 5s infinite; }
+  @keyframes flicker {
+    0%,94%,100% { opacity: 0.4; }
+    95% { opacity: 0.1; } 96% { opacity: 0.4; }
+    97% { opacity: 0.12; } 98% { opacity: 0.4; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header class="header">
+    <div class="header-tag">// sistema de missões //</div>
+    <h1>DRAW <span>OPS</span></h1>
+    <div class="header-sub">agente ativo — selecione filtros e sorteie um contrato</div>
+  </header>
+
+  <div class="divider"></div>
+
+  <!-- FILTROS -->
+  <div class="filters-wrap">
+
+    <div class="filter-group">
+      <div class="filter-group-label">// personagem</div>
+      <button class="filter-btn" data-group="oc" data-val="evy">Evy</button>
+      <button class="filter-btn" data-group="oc" data-val="kiara">Kiara</button>
+      <button class="filter-btn" data-group="oc" data-val="rex">Rex</button>
+      <button class="filter-btn" data-group="oc" data-val="aiyra">Aiyra</button>
+      <button class="filter-btn" data-group="oc" data-val="generico">Genérico</button>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-group-label">// universo / gênero</div>
+      <button class="filter-btn" data-group="genre" data-val="cyberpunk">Cyberpunk</button>
+      <button class="filter-btn" data-group="genre" data-val="fantasia">Fantasia</button>
+      <button class="filter-btn" data-group="genre" data-val="horror">Horror</button>
+      <button class="filter-btn" data-group="genre" data-val="scifi">Sci-Fi</button>
+      <button class="filter-btn" data-group="genre" data-val="cotidiano">Cotidiano</button>
+      <button class="filter-btn" data-group="genre" data-val="livre">Livre</button>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-group-label">// tipo</div>
+      <button class="filter-btn" data-group="type" data-val="oc">OC</button>
+      <button class="filter-btn" data-group="type" data-val="estudo">Estudo</button>
+      <button class="filter-btn" data-group="type" data-val="cenario">Cenário</button>
+      <button class="filter-btn" data-group="type" data-val="livre">Livre</button>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-group-label">// dificuldade</div>
+      <button class="filter-btn" data-group="diff" data-val="facil"   style="--active-diff-color:#39ff14;--active-diff-bg:rgba(57,255,20,0.08)">● Fácil</button>
+      <button class="filter-btn" data-group="diff" data-val="medio"   style="--active-diff-color:#ffd600;--active-diff-bg:rgba(255,214,0,0.08)">● Médio</button>
+      <button class="filter-btn" data-group="diff" data-val="dificil" style="--active-diff-color:#ff2d78;--active-diff-bg:rgba(255,45,120,0.08)">● Difícil</button>
+      <button class="filter-clear" id="clearFilters">limpar filtros</button>
+    </div>
+
+  </div>
+
+  <div class="filter-count" id="filterCount"></div>
+
+  <!-- ROLL -->
+  <div class="roll-area">
+    <button class="roll-btn" id="rollBtn">[ sortear missão ]</button>
+  </div>
+
+  <div class="mission-display" id="missionDisplay">
+    <div class="empty flicker">// aguardando contrato //</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label">arquivo de contratos</div>
+  <div class="mission-list" id="missionList"></div>
+
+  <div class="footer flicker">draw ops // v2.0 // acesso restrito</div>
+</div>
+
+<!-- INSTALL BANNER -->
+<div id="installBanner">
+  <span>// instalar como app</span>
+  <button class="install-btn" id="installBtn">INSTALAR</button>
+  <button class="dismiss-btn" id="dismissBtn">✕</button>
+</div>
+
+<script>
+// ─── CONFIGURAÇÃO DE BADGES POR OC / GÊNERO ──────────────────────────────────
+const OC_COLORS = {
+  evy:      { color: '#00e5ff', bg: 'rgba(0,229,255,0.10)'  },
+  kiara:    { color: '#c084fc', bg: 'rgba(192,132,252,0.10)' },
+  rex:      { color: '#fb923c', bg: 'rgba(251,146,60,0.10)'  },
+  aiyra:    { color: '#34d399', bg: 'rgba(52,211,153,0.10)'  },
+  generico: { color: '#94a3b8', bg: 'rgba(148,163,184,0.10)' },
+};
+
+const GENRE_COLORS = {
+  cyberpunk: { color: '#00e5ff', bg: 'rgba(0,229,255,0.08)'   },
+  fantasia:  { color: '#a78bfa', bg: 'rgba(167,139,250,0.08)' },
+  horror:    { color: '#f87171', bg: 'rgba(248,113,113,0.08)' },
+  scifi:     { color: '#38bdf8', bg: 'rgba(56,189,248,0.08)'  },
+  cotidiano: { color: '#86efac', bg: 'rgba(134,239,172,0.08)' },
+  livre:     { color: '#fbbf24', bg: 'rgba(251,191,36,0.08)'  },
+};
+
+// ─── MISSÕES ─────────────────────────────────────────────────────────────────
+const missions = [
+
+  // ── EVY ──────────────────────────────────────────────────────────────────
+  { id:1,  oc:'evy',      genre:'cyberpunk', type:'oc',      diff:'facil',   time:'15–30min', title:'Expressão Sarcástica',         desc:'Só o rosto da Evy com expressão de deboche — sobrancelha levantada, canto da boca torto. Sem corpo, sem fundo.',                                                       tip:'No anime a expressão mora nas sobrancelhas e nos olhos. Comece por aí.' },
+  { id:2,  oc:'evy',      genre:'cyberpunk', type:'oc',      diff:'facil',   time:'10–20min', title:'Silhueta Rápida — Evy',         desc:'A silhueta da Evy em contorno sólido, sem detalhes internos. Tente 3 poses diferentes.',                                                                           tip:'Silhueta boa = personagem reconhecível sem precisar de detalhes.' },
+  { id:3,  oc:'evy',      genre:'cyberpunk', type:'oc',      diff:'facil',   time:'15–25min', title:'Detalhe do Cabelo',             desc:'Foque só no cabelo da Evy. Teste uma variação de penteado ou explore como ele reagiria ao vento.',                                                                  tip:'No anime cada mecha tem direção e peso próprios. Não deixa tudo igual.' },
+  { id:4,  oc:'evy',      genre:'cyberpunk', type:'oc',      diff:'facil',   time:'20–30min', title:'Pack de Expressões — Evy',      desc:'Quatro rostinhos em miniatura: neutra, irritada, surpresa, sorrindo com malícia.',                                                                                  tip:'Mantém o crânio igual nos quatro. Só muda boca, sobrancelha e olho.' },
+  { id:5,  oc:'evy',      genre:'cyberpunk', type:'oc',      diff:'medio',   time:'40–60min', title:'Mão + Pistola',                 desc:'A mão da Evy segurando a pistola, vista lateral ou em três-quartos. Use o model sheet da arma como referência.',                                                   tip:'Mercenária segura arma com firmeza. Cuide da tensão dos dedos.' },
+  { id:6,  oc:'evy',      genre:'cyberpunk', type:'oc',      diff:'medio',   time:'45–75min', title:'Meio Corpo — Indiferença',      desc:'Evy de braços cruzados, olhando pra frente com indiferença. Da cintura pra cima com roupa.',                                                                       tip:'Braços cruzados é difícil de proporcionar. Faça leve antes de detalhar.' },
+  { id:7,  oc:'evy',      genre:'cyberpunk', type:'oc',      diff:'medio',   time:'30–50min', title:'Close com Luz de Neon',         desc:'Rosto da Evy iluminado por fonte de luz lateral — como se viesse de um letreiro fora do quadro.',                                                                  tip:'Iluminação lateral cria drama sem precisar de cenário complexo.' },
+  { id:8,  oc:'evy',      genre:'cyberpunk', type:'oc',      diff:'medio',   time:'40–60min', title:'Figurino — Variação',           desc:'A Evy com roupa diferente do design principal: casual, tática ou look de missão específica.',                                                                      tip:'Personagem com só um look parece plana. Roupa revela personalidade.' },
+  { id:9,  oc:'evy',      genre:'cyberpunk', type:'oc',      diff:'dificil', time:'90–120min',title:'Corpo Inteiro — Ação',          desc:'Evy em movimento: correndo, saltando ou apontando a arma. Corpo completo com movimento na roupa.',                                                                 tip:'Começa pelo eixo do corpo e centro de gravidade. A pose precisa fazer sentido físico.' },
+  { id:10, oc:'evy',      genre:'cyberpunk', type:'oc',      diff:'dificil', time:'2–3h',     title:'Cena de Missão — Evy',          desc:'A Evy num ambiente de Nova Voraz: personagem e cenário interagindo. Chuva, neon, sombra.',                                                                        tip:'Separa em camadas: fundo distante, plano médio, Evy no primeiro plano.' },
+  { id:11, oc:'evy',      genre:'cyberpunk', type:'oc',      diff:'dificil', time:'90–150min',title:'Página de Expressões — Evy',    desc:'Folha completa com 8–10 expressões da Evy, do neutro ao extremo. Vira referência permanente.',                                                                    tip:'Esse tipo de página é ouro no desenvolvimento de OC. Você vai usar pra sempre.' },
+
+  // ── KIARA ─────────────────────────────────────────────────────────────────
+  { id:12, oc:'kiara',    genre:'cyberpunk', type:'oc',      diff:'facil',   time:'15–25min', title:'Expressão Séria — Kiara',       desc:'Só o rosto da Kiara com expressão concentrada e controlada. Sem corpo, sem fundo.',                                                                                tip:'Personagem disciplinada: sobrancelhas levemente tensas, olhar direto, boca firme.' },
+  { id:13, oc:'kiara',    genre:'cyberpunk', type:'oc',      diff:'facil',   time:'10–20min', title:'Silhueta — Kiara',              desc:'A silhueta da Kiara em contorno sólido. Tente 3 poses: postura, descanso, alerta.',                                                                               tip:'A postura de um personagem disciplinado já diz muito antes de qualquer detalhe.' },
+  { id:14, oc:'kiara',    genre:'cyberpunk', type:'oc',      diff:'medio',   time:'40–65min', title:'Mão + Katana',                  desc:'A mão ou as duas mãos da Kiara empunhando a katana. Explore a pegada e o ângulo da lâmina.',                                                                     tip:'A katana é extensão do corpo — o ângulo do pulso muda completamente o peso da pose.' },
+  { id:15, oc:'kiara',    genre:'cyberpunk', type:'oc',      diff:'medio',   time:'45–70min', title:'Meio Corpo — Postura de Agente',desc:'Kiara meio corpo, postura ereta, olhar calculado. Pode ser com a katana na bainha ou na mão.',                                                                   tip:'Agente em repouso ainda parece pronta pra agir. Cuide do peso do corpo.' },
+  { id:16, oc:'kiara',    genre:'cyberpunk', type:'oc',      diff:'dificil', time:'90–130min',title:'Pose de Combate — Kiara',       desc:'Kiara em postura de combate com a katana desembainhada. Corpo inteiro, dinâmica e tensão.',                                                                       tip:'Estuda posições reais de iaijutsu ou kenjutsu pra ter referência de onde o peso vai.' },
+
+  // ── REX ───────────────────────────────────────────────────────────────────
+  { id:17, oc:'rex',      genre:'cyberpunk', type:'oc',      diff:'facil',   time:'15–25min', title:'Expressão Carismática — Rex',   desc:'Só o rosto do Rex com sorriso confiante ou expressão de quem acabou de fechar um trato. Pirulito opcional.',                                                     tip:'Carisma no anime: sobrancelha relaxada, olhos levemente entrecerrados, sorriso assimétrico.' },
+  { id:18, oc:'rex',      genre:'cyberpunk', type:'oc',      diff:'facil',   time:'10–20min', title:'Silhueta — Rex',                desc:'Silhueta do Rex em 3 poses: relaxado encostado na parede, mãos no bolso, oferecendo a mão pra aperto.',                                                          tip:'A linguagem corporal relaxada é o oposto da Kiara — explore isso na silhueta.' },
+  { id:19, oc:'rex',      genre:'cyberpunk', type:'oc',      diff:'facil',   time:'15–20min', title:'Detalhe — O Pirulito',          desc:'Close na boca/mão do Rex com o pirulito. Explore ângulos diferentes: mordendo, girando, segurando.',                                                             tip:'Props repetidos viram marca registrada de personagem. Vale caprichar nesse detalhe.' },
+  { id:20, oc:'rex',      genre:'cyberpunk', type:'oc',      diff:'medio',   time:'40–60min', title:'Meio Corpo — Negociação',       desc:'Rex de meio corpo numa pose de conversa — gesticulando, encostado, ou com aquele sorriso de quem tem vantagem.',                                                 tip:'Mãos expressivas são essenciais pra personagem comunicativo. Não esconda atrás do corpo.' },
+  { id:21, oc:'rex',      genre:'cyberpunk', type:'oc',      diff:'dificil', time:'2–3h',     title:'Cena de Negociação — Rex',      desc:'Rex numa cena de submundo: mesa, luz fraca, alguém do outro lado (silhueta está ótimo). Atmosfera de tensão velada.',                                           tip:'O Rex é o personagem mais relacional — o cenário ao redor conta a história dele.' },
+
+  // ── AIYRA ─────────────────────────────────────────────────────────────────
+  { id:22, oc:'aiyra',    genre:'fantasia',  type:'oc',      diff:'facil',   time:'15–25min', title:'Expressão Confiante — Aiyra',   desc:'Só o rosto da Aiyra com expressão confiante e levemente astuta. Inclua a tiara se quiser.',                                                                      tip:'Meio-elfa: orelhas levemente pontudas são o detalhe que define a raça sem exagero.' },
+  { id:23, oc:'aiyra',    genre:'fantasia',  type:'oc',      diff:'facil',   time:'10–20min', title:'Silhueta — Aiyra',              desc:'Silhueta da Aiyra em 3 poses: com asas abertas, mão na espada, cachecol ao vento.',                                                                             tip:'As asas mudam completamente a leitura da silhueta. Teste com e sem.' },
+  { id:24, oc:'aiyra',    genre:'fantasia',  type:'oc',      diff:'facil',   time:'20–30min', title:'Detalhe do Cachecol',           desc:'Explore como o cachecol vermelho da Aiyra se comporta em movimento: voando, preso, enrolado.',                                                                   tip:'Cachecol é um dos elementos mais dinâmicos do design dela — vale estudar dobras de tecido leve.' },
+  { id:25, oc:'aiyra',    genre:'fantasia',  type:'oc',      diff:'medio',   time:'40–65min', title:'Asas — Estudo',                 desc:'Desenhe as asas da Aiyra em 3 estados: recolhidas, meio abertas, totalmente abertas.',                                                                           tip:'Asas de fantasia no anime geralmente seguem lógica de ave ou morcego. Escolhe uma referência e estiliza.' },
+  { id:26, oc:'aiyra',    genre:'fantasia',  type:'oc',      diff:'medio',   time:'45–70min', title:'Meio Corpo — Aiyra',           desc:'Aiyra de meio corpo com cachecol ao vento e mão na empunhadura da espada.',                                                                                      tip:'O cachecol ao vento e os cabelos em movimento criam vida mesmo em pose estática.' },
+  { id:27, oc:'aiyra',    genre:'fantasia',  type:'oc',      diff:'dificil', time:'90–130min',title:'Voo — Aiyra',                   desc:'Aiyra com as asas abertas em pleno voo ou aterrissagem. Corpo inteiro, roupa e cachecol em movimento.',                                                          tip:'Voo é escorço extremo. Comece com o eixo do corpo e a direção do movimento antes de qualquer detalhe.' },
+  { id:28, oc:'aiyra',    genre:'fantasia',  type:'oc',      diff:'dificil', time:'2–3h',     title:'Cena de Fantasia — Aiyra',      desc:'Aiyra num cenário de fantasia: floresta mágica, ruínas, pico de montanha. Personagem e ambiente interagindo.',                                                   tip:'Fantasia tem mais liberdade de luz — usa isso. Luz mágica, brilho, partículas.' },
+
+  // ── GENÉRICO / LIVRE ──────────────────────────────────────────────────────
+  { id:29, oc:'generico', genre:'livre',     type:'livre',   diff:'facil',   time:'10–15min', title:'Boneco de Palito Dinâmico',     desc:'Só o esqueleto articulado: 5 poses rápidas sem preocupação com proporção ou detalhe. Capture o movimento.',                                                      tip:'Esse exercício treina leitura de pose antes de qualquer estilo.' },
+  { id:30, oc:'generico', genre:'livre',     type:'livre',   diff:'facil',   time:'15–20min', title:'Personagem Mistério',           desc:'Sorteie mentalmente: gênero, arquétipo, emoção. Desenhe o rosto desse personagem sem planejamento prévio.',                                                      tip:'Soltar o controle é um exercício em si. Não corrija enquanto desenha.' },
+  { id:31, oc:'generico', genre:'livre',     type:'livre',   diff:'facil',   time:'10–20min', title:'Garatuja de Conceito',          desc:'Encha uma página com thumbnails minúsculos: personagens, objetos, cenários sem identidade fixa. Quantidade, não qualidade.',                                     tip:'Thumbnails são onde ideias nascem antes de qualquer comprometimento.' },
+  { id:32, oc:'generico', genre:'livre',     type:'livre',   diff:'medio',   time:'30–50min', title:'Crossover de Humor',            desc:'Coloque dois dos seus OCs numa situação mundana e estranha — comprando pão, esperando ônibus, assistindo filme.',                                                 tip:'Personagens em situação de contraste revelam muito da personalidade deles.' },
+  { id:33, oc:'generico', genre:'livre',     type:'livre',   diff:'medio',   time:'40–60min', title:'Roupa Inventada',               desc:'Crie um figurino completo pra um personagem sem nome: estilo, acessórios, paleta. Não precisa fazer o personagem, só a roupa.',                                 tip:'Design de figurino é uma habilidade própria. Vale praticar separado do desenho de figura.' },
+  { id:34, oc:'generico', genre:'livre',     type:'livre',   diff:'dificil', time:'60–90min', title:'Página de Concept',             desc:'Uma página de concept com variações: 3 versões de um mesmo personagem com mudanças de roupa, cabelo ou traço.',                                                  tip:'Concept art é sobre explorar possibilidades, não sobre chegar no design final.' },
+
+  // ── ESTUDO ────────────────────────────────────────────────────────────────
+  { id:35, oc:'generico', genre:'livre',     type:'estudo',  diff:'facil',   time:'10–20min', title:'Círculos e Linhas',             desc:'Aquecimento puro: preencha uma página com círculos limpos e linhas retas em várias direções, sem régua.',                                                         tip:'Controle de traço é músculo. Parece bobo mas faz diferença em semanas.' },
+  { id:36, oc:'generico', genre:'livre',     type:'estudo',  diff:'facil',   time:'15–25min', title:'Estudo de Mãos',               desc:'Desenhe sua própria mão em duas posições: aberta e fechando punho. Só observação, sem referência de anime.',                                                      tip:'Quanto mais você estudar do real, mais fácil fica estilizar depois.' },
+  { id:37, oc:'generico', genre:'livre',     type:'estudo',  diff:'facil',   time:'20–30min', title:'Olhos Anime — Variedades',      desc:'6 olhos diferentes: pequeno e duro, grande e expressivo, semicerrado, arregalado, com sombra, com destaque neon.',                                               tip:'O olho no anime é onde a personalidade mora. Varie íris, highlight e espessura de contorno.' },
+  { id:38, oc:'generico', genre:'livre',     type:'estudo',  diff:'facil',   time:'15–20min', title:'Copiar uma Pose',               desc:'Pegue uma print de qualquer anime que admire e copie só a pose, sem se preocupar em ficar igual.',                                                               tip:'Copiar pra estudar é técnica legítima. O objetivo é entender a construção.' },
+  { id:39, oc:'generico', genre:'livre',     type:'estudo',  diff:'medio',   time:'30–45min', title:'Dobras de Tecido',              desc:'Estude como tecido dobra em 3 situações: calça sentada, jaqueta fechada, pano caindo livre.',                                                                     tip:'Tecido no anime é simplificado, mas segue a física real. Estude o real pra simplificar com consciência.' },
+  { id:40, oc:'generico', genre:'livre',     type:'estudo',  diff:'medio',   time:'40–55min', title:'Corpo em Escorço',              desc:'Boneco articulado em 3 poses com escorço: braço ou perna vindo em direção ao espectador.',                                                                       tip:'Escorço é onde a maioria trava. Pense em formas sobrepostas, não em contornos.' },
+  { id:41, oc:'generico', genre:'livre',     type:'estudo',  diff:'medio',   time:'45–60min', title:'Perspectiva de 1 Ponto',        desc:'Uma rua, corredor ou ambiente em perspectiva de 1 ponto de fuga. Sem personagem, só estrutura.',                                                                tip:'Traça a linha do horizonte primeiro, depois o ponto de fuga. Tudo se alinha a partir daí.' },
+  { id:42, oc:'generico', genre:'livre',     type:'estudo',  diff:'dificil', time:'90–120min',title:'Anatomia de Referência',        desc:'Copie 5 poses de personagens de anime ou artistas que admira, focando na construção do corpo.',                                                                   tip:'Anota o que aprendeu em cada pose. Esse material vira sua biblioteca mental.' },
+  { id:43, oc:'generico', genre:'livre',     type:'estudo',  diff:'dificil', time:'60–90min', title:'Perspectiva de 2 Pontos',       desc:'Um ambiente com 2 pontos de fuga: quarto, esquina de rua, interior. Adiciona props simples.',                                                                    tip:'Com 2 pontos de fuga, tudo que é paralelo converge pro mesmo ponto. Guia as linhas antes de qualquer detalhe.' },
+
+  // ── CENÁRIOS ──────────────────────────────────────────────────────────────
+  { id:44, oc:'generico', genre:'cyberpunk', type:'cenario', diff:'facil',   time:'20–30min', title:'Fachada de Beco — Nova Voraz',  desc:'Uma parede de beco: grafite, fios elétricos, letreiro de neon apagado. Só a fachada.',                                                                           tip:'Três elementos bem posicionados já criam atmosfera. Não precisa ser detalhado.' },
+  { id:45, oc:'generico', genre:'cyberpunk', type:'cenario', diff:'facil',   time:'15–25min', title:'Letreiro Neon Fictício',        desc:'Crie um letreiro de neon de um bar, loja ou serviço de Nova Voraz. Nome inventado, tipografia irregular.',                                                        tip:'Misture português com termos eletrônicos. Ex: "Reparos — 24h — Credencial Aceita".' },
+  { id:46, oc:'generico', genre:'cyberpunk', type:'cenario', diff:'medio',   time:'45–70min', title:'Skyline de Nova Voraz',         desc:'Silhueta de Nova Voraz à noite: prédios, fios, antenas, luzes. Sem detalhes internos.',                                                                           tip:'Varia a altura dos prédios pra criar ritmo. Luzes são só pontos e traços.' },
+  { id:47, oc:'generico', genre:'cyberpunk', type:'cenario', diff:'medio',   time:'40–60min', title:'Ponto de Encontro — Submundo', desc:'Um local de entrega ou encontro: telhado, estação abandonada, mercado subterrâneo.',                                                                              tip:'3 elementos definem o lugar: o que tem no chão, nas paredes, no teto/céu.' },
+  { id:48, oc:'generico', genre:'cyberpunk', type:'cenario', diff:'dificil', time:'2–3h',     title:'Interior Cyberpunk',            desc:'Ambiente interno: bar clandestino, quarto de hacker, escritório de facção. Perspectiva de 2 pontos, com props.',                                                tip:'Começa pelos planos grandes, depois adiciona props. O olho do espectador completa o resto.' },
+  { id:49, oc:'generico', genre:'fantasia',  type:'cenario', diff:'facil',   time:'20–30min', title:'Portal Mágico',                 desc:'Um portal ou passagem mágica simples: arco de pedra, círculo de runas, fenda de luz. Só o elemento central.',                                                    tip:'Fantasia tem liberdade de forma. Testa silhuetas absurdas antes de decidir o design.' },
+  { id:50, oc:'generico', genre:'fantasia',  type:'cenario', diff:'medio',   time:'45–65min', title:'Ruínas de Fantasia',            desc:'Um ambiente de ruínas: colunas quebradas, vegetação tomando conta, luz atravessando.',                                                                           tip:'Vegetação em ruínas no anime costuma ser simplificada mas cheia de ritmo. Alterna formas orgânicas e geométricas.' },
+  { id:51, oc:'generico', genre:'fantasia',  type:'cenario', diff:'dificil', time:'2–3h',     title:'Cidade de Fantasia',            desc:'Uma cidade ou vila de fantasia: arquitetura, atmosfera, escala. Vista de longe ou numa rua.',                                                                     tip:'Fantasia tem mais liberdade de paleta — usa iluminação dramática e cores irreais.' },
+  { id:52, oc:'generico', genre:'horror',    type:'cenario', diff:'medio',   time:'40–60min', title:'Ambiente de Horror',            desc:'Um ambiente perturbador: mansão abandonada, floresta noturna, corredor sem fim. Atmosfera em primeiro lugar.',                                                    tip:'No horror o que não se vê assusta mais. Deixa cantos escuros e detalhes incompletos.' },
+  { id:53, oc:'generico', genre:'cotidiano', type:'cenario', diff:'facil',   time:'20–30min', title:'Quarto de Personagem',          desc:'O quarto de um dos seus OCs — objetos, bagunça ou organização que revelam a personalidade.',                                                                      tip:'O ambiente fala sobre o personagem sem precisar mostrá-lo. Cada objeto é uma escolha.' },
+  { id:54, oc:'generico', genre:'cotidiano', type:'cenario', diff:'medio',   time:'40–55min', title:'Cena de Slice of Life',         desc:'Um ambiente cotidiano: café, parque, cozinha. Sem personagem obrigatório, foco na atmosfera tranquila.',                                                         tip:'Slice of life depende de luz e textura pra criar aconchego. Pensa em como a luz entra no espaço.' },
+  { id:55, oc:'generico', genre:'scifi',     type:'cenario', diff:'medio',   time:'45–70min', title:'Nave / Estação Espacial',       desc:'Interior ou exterior de nave ou estação: corredores, painéis, janelas pro espaço.',                                                                             tip:'Sci-Fi limpo diferencia de cyberpunk pela ausência de sujeira e neon. Linhas mais frias e espaçadas.' },
+];
+
+// ─── ESTADO ──────────────────────────────────────────────────────────────────
+const activeFilters = { oc: null, genre: null, type: null, diff: null };
+let lastMission = null;
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const DIFF_LABEL  = { facil:'Fácil', medio:'Médio', dificil:'Difícil' };
+const DIFF_COLOR  = { facil:'var(--easy)', medio:'var(--medium)', dificil:'var(--hard)' };
+const OC_LABEL    = { evy:'Evy', kiara:'Kiara', rex:'Rex', aiyra:'Aiyra', generico:'Genérico' };
+const GENRE_LABEL = { cyberpunk:'Cyberpunk', fantasia:'Fantasia', horror:'Horror', scifi:'Sci-Fi', cotidiano:'Cotidiano', livre:'Livre' };
+const TYPE_LABEL  = { oc:'OC', estudo:'Estudo', cenario:'Cenário', livre:'Livre' };
+
+function badgeHTML(label, color, bg, small=false) {
+  const cls = small ? 'mini-badge' : 'card-badge';
+  return `<span class="${cls}" style="color:${color};border-color:${color};background:${bg}">${label}</span>`;
+}
+
+function missionBadges(m, small=false) {
+  const oc    = OC_COLORS[m.oc]    || OC_COLORS.generico;
+  const genre = GENRE_COLORS[m.genre] || GENRE_COLORS.livre;
+  let html = '';
+  if (m.oc !== 'generico') html += badgeHTML(OC_LABEL[m.oc], oc.color, oc.bg, small);
+  html += badgeHTML(GENRE_LABEL[m.genre], genre.color, genre.bg, small);
+  html += badgeHTML(TYPE_LABEL[m.type], '#94a3b8', 'rgba(148,163,184,0.08)', small);
+  return html;
+}
+
+function getFiltered() {
+  return missions.filter(m => {
+    if (activeFilters.oc    && m.oc    !== activeFilters.oc)    return false;
+    if (activeFilters.genre && m.genre !== activeFilters.genre) return false;
+    if (activeFilters.type  && m.type  !== activeFilters.type)  return false;
+    if (activeFilters.diff  && m.diff  !== activeFilters.diff)  return false;
+    return true;
+  });
+}
+
+// ─── UI ──────────────────────────────────────────────────────────────────────
+function showMission(m) {
+  const accent = DIFF_COLOR[m.diff];
+  document.getElementById('missionDisplay').innerHTML = `
+    <div class="card" style="--card-accent:${accent}">
+      <div class="card-corner"></div>
+      <div class="card-meta">
+        <span class="card-diff ${m.diff}">${DIFF_LABEL[m.diff]}</span>
+        ${missionBadges(m)}
+        <span class="card-time">⏱ ${m.time}</span>
+      </div>
+      <div class="card-title">${m.title}</div>
+      <div class="card-desc">${m.desc}</div>
+      <div class="card-tip"><strong>// dica:</strong> ${m.tip}</div>
+    </div>`;
+}
+
+function rollMission() {
+  const pool = getFiltered();
+  if (!pool.length) return;
+  let avail = pool.filter(m => m !== lastMission);
+  if (!avail.length) avail = pool;
+  const m = avail[Math.floor(Math.random() * avail.length)];
+  lastMission = m;
+  showMission(m);
+}
+
+function updateCount() {
+  const n = getFiltered().length;
+  const total = missions.length;
+  document.getElementById('filterCount').innerHTML =
+    `<span>${n}</span> de ${total} missões disponíveis`;
+}
+
+function renderList() {
+  document.getElementById('missionList').innerHTML = getFiltered().map(m => `
+    <div class="mission-item" onclick="showMission(missions.find(x=>x.id===${m.id}))">
+      <div class="dot ${m.diff}"></div>
+      <div class="mission-item-name">${m.title}</div>
+      <div class="mission-item-badges">${missionBadges(m, true)}</div>
+      <div class="mission-item-time">${m.time}</div>
+    </div>`).join('');
+}
+
+function updateUI() { updateCount(); renderList(); }
+
+// ─── FILTROS ─────────────────────────────────────────────────────────────────
+const GROUP_CLASS = { oc:'active-oc', genre:'active-genre', type:'active-type', diff:'active-diff' };
+
+document.querySelectorAll('.filter-btn[data-group]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const g = btn.dataset.group;
+    const v = btn.dataset.val;
+    if (activeFilters[g] === v) {
+      activeFilters[g] = null;
+      btn.classList.remove(GROUP_CLASS[g]);
+    } else {
+      document.querySelectorAll(`.filter-btn[data-group="${g}"]`).forEach(b => b.classList.remove(GROUP_CLASS[g]));
+      activeFilters[g] = v;
+      btn.classList.add(GROUP_CLASS[g]);
+    }
+    updateUI();
+  });
+});
+
+document.getElementById('clearFilters').addEventListener('click', () => {
+  Object.keys(activeFilters).forEach(k => activeFilters[k] = null);
+  document.querySelectorAll('.filter-btn[data-group]').forEach(b => {
+    b.classList.remove('active-oc','active-genre','active-type','active-diff');
+  });
+  updateUI();
+});
+
+document.getElementById('rollBtn').addEventListener('click', rollMission);
+
+// ─── PWA ─────────────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+let deferredPrompt = null;
+const banner     = document.getElementById('installBanner');
+const installBtn = document.getElementById('installBtn');
+const dismissBtn = document.getElementById('dismissBtn');
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e; banner.classList.add('visible');
+});
+
+installBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null; banner.classList.remove('visible');
+});
+
+dismissBtn.addEventListener('click', () => banner.classList.remove('visible'));
+window.addEventListener('appinstalled', () => banner.classList.remove('visible'));
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+updateUI();
+</script>
+</body>
+</html>
