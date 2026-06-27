@@ -265,7 +265,8 @@ body::after{
   position:relative;
 }
 .mission-item:hover,.mission-item:active{border-color:var(--neon-c);background:rgba(0,229,255,.03);}
-.mission-item.is-done{opacity:.45;}
+.mission-item.is-locked{opacity:.5;}
+.mission-item.is-locked:hover{border-color:var(--border);background:transparent;}
 .mission-item.is-done::after{content:'✓';position:absolute;right:10px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--neon-g);}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .dot.facil  {background:var(--easy);  box-shadow:0 0 5px var(--easy);}
@@ -590,7 +591,7 @@ const missions = [
     desc:'Evy em movimento: correndo, saltando ou apontando a arma. Corpo completo com roupa reagindo ao movimento.',
     tip:'Começa pela linha de ação (curva do corpo), depois o centro de gravidade. A pose precisa fazer sentido físico antes de ser bonita.' },
 
-  { id:10, oc:'evy',   genre:'cyberpunk', type:'oc', diff:'dificil', time:'2–3h',      xp:120,
+  { id:10, oc:'evy',   genre:'cyberpunk', type:'oc', diff:'dificil', time:'2–3h',      xp:120, minRank:4,
     title:'Cena de Missão — Evy',
     why:'Treina composição completa: personagem + cenário + luz + narrativa visual num único frame.',
     desc:'A Evy num ambiente de Nova Voraz: personagem e cenário interagindo. Chuva, neon, sombra.',
@@ -658,7 +659,7 @@ const missions = [
     desc:'Rex de meio corpo numa pose de conversa — gesticulando, encostado, ou com aquele sorriso de vantagem.',
     tip:'Mãos expressivas são essenciais pra personagem comunicativo. Não esconda atrás do corpo.' },
 
-  { id:21, oc:'rex',   genre:'cyberpunk', type:'oc', diff:'dificil', time:'2–3h',      xp:120,
+  { id:21, oc:'rex',   genre:'cyberpunk', type:'oc', diff:'dificil', time:'2–3h',      xp:120, minRank:4,
     title:'Cena de Negociação — Rex',
     why:'Treina cena com dois planos: o Rex como foco e a presença implícita de outro personagem definindo o contexto.',
     desc:'Rex numa cena de submundo: mesa, luz fraca, alguém do outro lado (silhueta está ótimo). Atmosfera de tensão velada.',
@@ -701,7 +702,7 @@ const missions = [
     desc:'Aiyra com asas abertas em voo ou aterrissagem. Corpo inteiro, roupa e cachecol em movimento.',
     tip:'Voo exige escorço. Comece com o eixo do corpo e a direção do movimento — asas e roupa vêm depois.' },
 
-  { id:28, oc:'aiyra', genre:'fantasia',  type:'oc', diff:'dificil', time:'2–3h',      xp:120,
+  { id:28, oc:'aiyra', genre:'fantasia',  type:'oc', diff:'dificil', time:'2–3h',      xp:120, minRank:4,
     title:'Cena de Fantasia — Aiyra',
     why:'Treina composição completa em gênero diferente: luz mágica, ambiente de fantasia e personagem interagindo.',
     desc:'Aiyra num cenário de fantasia: floresta mágica, ruínas, pico de montanha. Personagem e ambiente juntos.',
@@ -836,7 +837,7 @@ const missions = [
     desc:'Um local de entrega ou encontro de Nova Voraz: telhado, estação abandonada, mercado subterrâneo.',
     tip:'3 elementos que definem o lugar: o que tem no chão (narrativa), nas paredes (identidade), no teto/céu (atmosfera).' },
 
-  { id:50, oc:'generico', genre:'cyberpunk', type:'cenario', diff:'dificil', time:'2–3h',      xp:120,
+  { id:50, oc:'generico', genre:'cyberpunk', type:'cenario', diff:'dificil', time:'2–3h',      xp:120, minRank:4,
     title:'Interior Cyberpunk',
     why:'Interior com perspectiva de 2 pontos e props é o desafio completo de cenário: perspectiva + design de objetos + atmosfera juntos.',
     desc:'Ambiente interno: bar clandestino, quarto de hacker, escritório de facção. Perspectiva de 2 pontos, com props.',
@@ -854,7 +855,7 @@ const missions = [
     desc:'Ambiente de ruínas: colunas quebradas, vegetação tomando conta, luz atravessando.',
     tip:'Vegetação no anime é simplificada mas cheia de ritmo. Alterna formas orgânicas (plantas) com geométricas (pedras). O contraste cria vida.' },
 
-  { id:53, oc:'generico', genre:'fantasia',  type:'cenario', diff:'dificil', time:'2–3h',      xp:120,
+  { id:53, oc:'generico', genre:'fantasia',  type:'cenario', diff:'dificil', time:'2–3h',      xp:120, minRank:4,
     title:'Cidade de Fantasia',
     why:'Worldbuilding visual: treina criar um lugar crível a partir de escolhas de arquitetura, escala e atmosfera.',
     desc:'Uma cidade ou vila de fantasia: arquitetura, atmosfera, escala. Vista de longe ou numa rua.',
@@ -866,7 +867,7 @@ const missions = [
     desc:'Um ambiente perturbador: mansão abandonada, floresta noturna, corredor sem fim.',
     tip:'No horror o que não se vê assusta mais do que o que se vê. Deixa cantos escuros e detalhes intencionalmente incompletos.' },
 
-  { id:55, oc:'generico', genre:'horror',    type:'cenario', diff:'dificil', time:'2–3h',      xp:120,
+  { id:55, oc:'generico', genre:'horror',    type:'cenario', diff:'dificil', time:'2–3h',      xp:120, minRank:4,
     title:'Cena de Horror Completa',
     why:'Treina composição que evoca emoção específica: a iluminação, o ângulo e o que é (ou não) mostrado criam o horror.',
     desc:'Uma cena de horror com personagem ou criatura e ambiente. Iluminação e composição são o foco.',
@@ -890,11 +891,116 @@ const missions = [
     desc:'Interior de nave ou estação espacial: corredores, painéis, janelas pro espaço.',
     tip:'Sci-Fi limpo diferencia de cyberpunk pela ausência de sujeira e caos. Linhas mais frias, espaçadas, cor mais contida.' },
 
-  { id:59, oc:'generico', genre:'scifi',     type:'cenario', diff:'dificil', time:'2–3h',      xp:120,
+  { id:59, oc:'generico', genre:'scifi',     type:'cenario', diff:'dificil', time:'2–3h',      xp:120, minRank:4,
     title:'Vista Espacial',
     why:'Escala extrema (planeta, nave, espaço) treina composição quando os elementos são objetos sem escala intuitiva.',
     desc:'Uma vista do espaço com nave, estação ou planeta. Escala e composição são o desafio.',
     tip:'No espaço não há atmosfera — sombras são absolutas (preto total). Só superfícies voltadas pra estrela têm luz.' },
+  // ── DIFÍCEIS COM REQUISITO PROGRESSIVO ──────────────────
+  // (já existiam, só adicionamos minRank onde faz sentido pedagógico)
+
+  // Cenas completas exigem perspectiva (Rank 4)
+  // id 10, 21, 28, 50, 53, 55, 59 — aplicados inline nos objetos acima via minRank
+
+  // ── NOVAS: LUZ E VALOR (desbloqueiam no Rank 3) ─────────
+  { id:60, oc:'generico', genre:'livre', type:'estudo', diff:'facil',   time:'20–30min', xp:25,   minRank:3,
+    title:'Escala de Cinza — 5 Tons',
+    why:'Entender valor (claro/escuro) antes de cor é o método comprovado. Cor sem valor não funciona — valor sem cor sim.',
+    desc:'Divida uma tira em 5 retângulos e preencha do branco ao preto passando por 3 cinzas intermediários. Depois repita com formas simples.',
+    tip:'A transição entre tons deve ser gradual e uniforme. Se dois tons parecem iguais, um está errado.' },
+
+  { id:61, oc:'generico', genre:'livre', type:'estudo', diff:'facil',   time:'25–35min', xp:25,   minRank:3,
+    title:'Luz e Sombra — Esfera',
+    why:'A esfera é o objeto de estudo padrão de luz porque concentra todos os tipos de sombra num único objeto simples.',
+    desc:'Desenhe uma esfera e aplique: luz direta, sombra de forma, sombra projetada e luz refletida. Só tons, sem linha.',
+    tip:'Existe uma faixa escura logo antes da borda iluminada pela luz refletida — esse detalhe separa iniciante de intermediário.' },
+
+  { id:62, oc:'generico', genre:'livre', type:'estudo', diff:'medio',   time:'40–55min', xp:60,   minRank:3,
+    title:'Luz e Sombra — 3 Objetos',
+    why:'Generalizar o entendimento de luz para formas diferentes é o que constrói o vocabulário visual de iluminação.',
+    desc:'Esfera, cubo e cilindro com a mesma fonte de luz. Compare como a sombra se comporta diferente em cada forma.',
+    tip:'No cubo a sombra tem borda dura. Na esfera é gradual. No cilindro é mista. Isso vale pra qualquer objeto complexo depois.' },
+
+  { id:63, oc:'generico', genre:'livre', type:'estudo', diff:'medio',   time:'45–60min', xp:60,   minRank:3,
+    title:'Valor em Personagem — Só Tons',
+    why:'Aplicar luz em personagem sem se preocupar com linha ou cor isola o problema. É assim que profissionais planejam iluminação.',
+    desc:'Pegue um esboço de qualquer personagem (seu ou copiado) e preencha só com 3 tons: luz, sombra e meio-tom. Sem linha, só mancha.',
+    tip:'Defina a direção da luz antes de qualquer coisa. Mude de ideia sobre a cor depois — mas a direção da luz não pode ser vaga.' },
+
+  { id:64, oc:'generico', genre:'livre', type:'estudo', diff:'dificil', time:'60–90min', xp:120,  minRank:3,
+    title:'Cena em Valor — Sem Cor',
+    why:'Planejar cena em valor antes de cor é método padrão de ilustradores profissionais. Garante que a composição funciona independente da paleta.',
+    desc:'Desenhe uma cena simples (personagem + fundo) usando só preto, branco e 2 cinzas. Só colore depois de aprovar o valor.',
+    tip:'Se a cena não funciona em valor, não vai funcionar em cor. A cor vai distrair, mas não vai consertar.' },
+
+  // ── NOVAS: COMPOSIÇÃO (desbloqueiam no Rank 4) ──────────
+  { id:65, oc:'generico', genre:'livre', type:'estudo', diff:'facil',   time:'15–25min', xp:25,   minRank:4,
+    title:'Regra dos Terços — Thumbnails',
+    why:'A regra dos terços é o princípio de composição mais ensinado porque funciona consistentemente para criar tensão visual.',
+    desc:'Faça 6 thumbnails de cenas simples (personagem + fundo) posicionando o sujeito em cada um dos 4 pontos de intersecção da grade de terços.',
+    tip:'O olho vai naturalmente para os pontos de intersecção. Colocar o sujeito no centro geralmente enfraquece a composição.' },
+
+  { id:66, oc:'generico', genre:'livre', type:'estudo', diff:'facil',   time:'20–30min', xp:25,   minRank:4,
+    title:'Linhas de Leitura',
+    why:'O olho segue linhas implícitas na imagem. Treinar ver e criar essas linhas é o que separa composição acidental de intencional.',
+    desc:'Pegue 3 imagens de artistas que admira e trace as linhas de movimento implícitas — onde seu olho vai e em que ordem.',
+    tip:'Braços, olhares, perspectiva e contraste criam linhas invisíveis. Identificar nas obras dos outros te ensina a criar nas suas.' },
+
+  { id:67, oc:'generico', genre:'livre', type:'estudo', diff:'medio',   time:'40–60min', xp:60,   minRank:4,
+    title:'Composição — 3 Leituras',
+    why:'A mesma cena pode ser lida como trágica, épica ou íntima dependendo só do enquadramento. Treinar isso é treinar narrativa visual.',
+    desc:'Pegue uma cena simples (personagem olhando pra algo) e recrie em 3 enquadramentos: close dramático, plano médio neutro, plano aberto épico.',
+    tip:'Câmera baixa = poder/grandeza. Câmera alta = vulnerabilidade/controle. Close = emoção. Plano aberto = contexto/solidão.' },
+
+  { id:68, oc:'generico', genre:'livre', type:'estudo', diff:'medio',   time:'45–65min', xp:60,   minRank:4,
+    title:'Peso Visual e Equilíbrio',
+    why:'Toda composição tem peso — elementos escuros, grandes ou detalhados pesam mais. Entender isso evita imagens que "caem" pra um lado.',
+    desc:'Crie 4 thumbnails: composição equilibrada, desequilibrada pra esquerda, desequilibrada pra direita, e desequilibrada mas intencional.',
+    tip:'Desequilíbrio não é erro — é ferramenta. Uma composição que "cai" pra um lado pode criar tensão narrativa se for proposital.' },
+
+  // ── NOVAS: COR (desbloqueiam no Rank 6) ─────────────────
+  { id:69, oc:'generico', genre:'livre', type:'estudo', diff:'medio',   time:'30–45min', xp:60,   minRank:6,
+    title:'Temperatura de Cor',
+    why:'Luz quente/sombra fria (ou o inverso) é o princípio mais usado em ilustração porque imita como a luz funciona no mundo real.',
+    desc:'Pegue um esboço simples e colore duas vezes: luz quente (amarelo/laranja) com sombra fria (azul/roxo), depois o inverso.',
+    tip:'Sombra nunca é só "a cor mais escura". Ela tem temperatura oposta à luz. Esse detalhe é o que faz a cor parecer viva.' },
+
+  { id:70, oc:'generico', genre:'livre', type:'estudo', diff:'medio',   time:'40–55min', xp:60,   minRank:6,
+    title:'Paleta Limitada — 3 Cores',
+    why:'Paleta limitada força harmonia. A maioria dos erros de cor vêm de usar cores demais, não de menos.',
+    desc:'Escolha 3 cores (1 dominante, 1 secundária, 1 acento) e crie uma ilustração simples usando só elas. Pode variar valor, não as cores.',
+    tip:'A cor de acento deve ser a menos usada e a mais saturada. Ela chama atenção — use onde você quer que o olho vá.' },
+
+  { id:71, oc:'generico', genre:'livre', type:'estudo', diff:'medio',   time:'45–60min', xp:60,   minRank:6,
+    title:'Harmonia de Cor — Análoga',
+    why:'Cores análogas (vizinhas no círculo cromático) criam harmonia natural. É a paleta mais fácil de acertar e muito usada em anime.',
+    desc:'Crie uma cena ou personagem usando só cores análogas — ex: amarelo, amarelo-verde, verde. Varie saturação e valor livremente.',
+    tip:'Anime usa muito análogas com um acento complementar pequeno. Pensa: fundo azul-roxo, personagem azul, detalhe laranja.' },
+
+  { id:72, oc:'generico', genre:'livre', type:'estudo', diff:'dificil', time:'90–120min', xp:120, minRank:6,
+    title:'Releitura Cromática',
+    why:'Pegar uma ilustração sua antiga e recolorir com consciência de valor e temperatura mostra evolução real de forma concreta.',
+    desc:'Pegue qualquer desenho seu já feito e refaça a colorização do zero: planeje valor primeiro, depois temperatura, depois acento.',
+    tip:'Compare antes e depois. Se a nova versão não for visivelmente melhor, a estrutura do desenho original é o problema — não a cor.' },
+
+  // ── NOVAS: REFERÊNCIA FOTOGRÁFICA (Rank 5) ───────────────
+  { id:73, oc:'generico', genre:'livre', type:'estudo', diff:'medio',   time:'45–70min', xp:60,   minRank:5,
+    title:'Pose de Referência Fotográfica',
+    why:'Foto como referência de pose (não de estilo) treina leitura de corpo real antes de estilizar — método usado por praticamente todo artista profissional.',
+    desc:'Escolha uma foto de pose humana (Pinterest, Unsplash, PoseMuse) e reproduza em estilo anime: simplifique anatomia, exagere expressão.',
+    tip:'O objetivo não é copiar a foto — é extrair a estrutura de pose e traduzir para o seu estilo. São duas etapas distintas.' },
+
+  { id:74, oc:'generico', genre:'livre', type:'estudo', diff:'medio',   time:'40–55min', xp:60,   minRank:5,
+    title:'Simplificação de Foto em Formas',
+    why:'Ver foto e identificar as formas geométricas subjacentes é o exercício que treina o olho analítico — a base do design de personagem.',
+    desc:'Escolha uma foto de rosto ou corpo e reduza a formas básicas: círculos, retângulos, triângulos. Só as formas, nenhum detalhe.',
+    tip:'Olho fechado, nariz = triângulo, maxilar = trapézio. Quanto mais você vê forma, menos você fica preso no detalhe.' },
+
+  { id:75, oc:'generico', genre:'livre', type:'estudo', diff:'dificil', time:'90–120min', xp:120, minRank:5,
+    title:'Estudo de Master — Desconstrução',
+    why:'Copiar obra de artista que admira com atenção à construção (não ao resultado) é o método de aprendizado mais antigo e mais eficaz que existe.',
+    desc:'Escolha uma ilustração de um artista que admira e copie com intenção: a cada elemento, pause e identifique qual decisão foi tomada e por quê.',
+    tip:'Anota enquanto faz: "a sombra aqui vai pra baixo porque a luz está acima e à esquerda". Verbalizar o processo acelera a internalização.' },
 ];
 
 // ════════════════════════════════════════════════════════════
@@ -933,6 +1039,11 @@ function getRankIndex(xp) {
     if (xp >= RANKS[i].xp) idx = i;
   }
   return idx;
+}
+
+function isLocked(m) {
+  if (!m.minRank) return false;
+  return getRankIndex(state.xp) < m.minRank;
 }
 
 function updateXPPanel() {
@@ -986,8 +1097,9 @@ function missionBadges(m, small) {
 // ════════════════════════════════════════════════════════════
 const activeFilters = { oc:null, genre:null, type:null, diff:null, done:null };
 
-function getFiltered() {
+function getFiltered(forRoll = false) {
   return missions.filter(m => {
+    if (forRoll && isLocked(m)) return false;
     if (activeFilters.oc    && m.oc    !== activeFilters.oc)    return false;
     if (activeFilters.genre && m.genre !== activeFilters.genre) return false;
     if (activeFilters.type  && m.type  !== activeFilters.type)  return false;
@@ -1040,6 +1152,7 @@ function showMission(m, scroll) {
 
 function completeMission(m) {
   if (state.done.includes(m.id)) return;
+  const rankBefore = getRankIndex(state.xp);
   state.done.push(m.id);
   state.xp += XP_VALUES[m.diff];
   state.history.unshift({
@@ -1049,17 +1162,27 @@ function completeMission(m) {
     oc: m.oc, genre: m.genre,
   });
   saveState();
+  const rankAfter = getRankIndex(state.xp);
   updateXPPanel();
   renderList();
   showMission(m, false);
-  toast(`+${XP_VALUES[m.diff]} XP — ${m.title}`, 'ok');}
+  if (rankAfter > rankBefore) {
+    const newRank = RANKS[rankAfter];
+    const unlocked = missions.filter(x => x.minRank === rankAfter).length;
+    setTimeout(() => {
+      toast(`↑ ${newRank.title}${unlocked ? ` — ${unlocked} novo(s) desbloqueado(s)!` : ''}`, 'ok');
+    }, 400);
+  } else {
+    toast(`+${XP_VALUES[m.diff]} XP — ${m.title}`, 'ok');
+  }
+}
 
 // ════════════════════════════════════════════════════════════
 // ROLL
 // ════════════════════════════════════════════════════════════
 function rollMission() {
-  const pool = getFiltered();
-  if (!pool.length) { toast('Nenhuma missão com esses filtros', 'warn'); return; }
+  const pool = getFiltered(true);
+  if (!pool.length) { toast('Nenhum exercício disponível com esses filtros', 'warn'); return; }
   const avail = pool.filter(m => m !== currentMission);
   const m = (avail.length ? avail : pool)[Math.floor(Math.random() * (avail.length || pool.length))];
   showMission(m, true);
@@ -1069,18 +1192,24 @@ function rollMission() {
 // LISTA
 // ════════════════════════════════════════════════════════════
 function renderList() {
-  const filtered = getFiltered();
+  const filtered = getFiltered(false);
+  const available = filtered.filter(m => !isLocked(m));
   document.getElementById('filterCount').innerHTML =
-    `<span>${filtered.length}</span> de ${missions.length} exercícios`;
+    `<span>${available.length}</span> disponíveis · ${filtered.length - available.length} bloqueados · ${missions.length} total`;
 
   document.getElementById('missionList').innerHTML = filtered.map(m => {
-    const done = state.done.includes(m.id);
+    const done   = state.done.includes(m.id);
+    const locked = isLocked(m);
     return `
-      <div class="mission-item${done ? ' is-done' : ''}" onclick="showMission(missions.find(x=>x.id===${m.id}),true)">
+      <div class="mission-item${done ? ' is-done' : ''}${locked ? ' is-locked' : ''}"
+           onclick="${locked ? '' : `showMission(missions.find(x=>x.id===${m.id}),true)`}"
+           style="${locked ? 'cursor:default' : ''}">
         <div class="dot ${m.diff}"></div>
-        <div class="mission-item-name">${m.title}</div>
-        <div class="mission-item-badges">${missionBadges(m, true)}</div>
-        <div class="mission-item-time">${m.time}</div>
+        <div class="mission-item-name">${locked ? '🔒 ' : ''}${m.title}</div>
+        <div class="mission-item-badges">${locked
+          ? `<span class="mini-badge" style="color:var(--muted);border-color:var(--border)">rank ${m.minRank}+</span>`
+          : missionBadges(m, true)}</div>
+        <div class="mission-item-time">${locked ? '—' : m.time}</div>
       </div>`;
   }).join('');
 }
@@ -1114,17 +1243,18 @@ function renderHistory() {
 function renderRanks() {
   const ri  = getRankIndex(state.xp);
   document.getElementById('rankList').innerHTML = RANKS.map((r, i) => {
-    const isCur    = i === ri;
-    const isLocked = i > ri;
-    const nxt      = RANKS[i + 1];
+    const isCur      = i === ri;
+    const rankLocked = i > ri;
+    const nxt        = RANKS[i + 1];
+    const unlocks    = missions.filter(m => m.minRank === i).length;
     let status = '';
     if (isCur && nxt)  status = `<span class="rank-status">atual — faltam ${nxt.xp - state.xp} xp</span>`;
     if (isCur && !nxt) status = `<span class="rank-status">nível máximo</span>`;
-    if (!isLocked && !isCur) status = `<span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--neon-g)">✓ conquistado</span>`;
+    if (!rankLocked && !isCur) status = `<span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--neon-g)">✓ conquistado</span>`;
     return `
-      <div class="rank-item${isCur ? ' current' : ''}${isLocked ? ' locked' : ''}">
-        <div class="rank-title" style="color:${isCur ? 'var(--neon-y)' : isLocked ? 'var(--muted)' : '#fff'}">${r.title}</div>
-        <div class="rank-xp">${r.xp} xp</div>
+      <div class="rank-item${isCur ? ' current' : ''}${rankLocked ? ' locked' : ''}">
+        <div class="rank-title" style="color:${isCur ? 'var(--neon-y)' : rankLocked ? 'var(--muted)' : '#fff'}">${r.title}</div>
+        <div class="rank-xp">${r.xp} xp${unlocks ? ` · 🔓 ${unlocks} exercício(s)` : ''}</div>
         ${status}
       </div>`;
   }).join('');
