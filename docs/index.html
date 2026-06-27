@@ -361,7 +361,7 @@ body::after{
   </div>
 
   <header class="header">
-    <div class="header-tag">// sistema de missões //</div>
+    <div class="header-tag">// exercícios de desenho //</div>
     <h1>DRAW <span>OPS</span></h1>
     <div class="header-sub" id="headerSub">inicializando...</div>
   </header>
@@ -375,7 +375,7 @@ body::after{
     </div>
     <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpBarFill" style="width:0%"></div></div>
     <div class="xp-stats">
-      <div class="xp-stat">missões: <span id="statDone">0</span></div>
+      <div class="xp-stat">exercícios: <span id="statDone">0</span></div>
       <div class="xp-stat">fáceis: <span id="statFacil">0</span></div>
       <div class="xp-stat">médias: <span id="statMedio">0</span></div>
       <div class="xp-stat">difíceis: <span id="statDificil">0</span></div>
@@ -431,14 +431,14 @@ body::after{
     <div class="filter-count" id="filterCount"></div>
 
     <div class="roll-area">
-      <button class="roll-btn" id="rollBtn">[ sortear missão ]</button>
+      <button class="roll-btn" id="rollBtn">[ sortear exercício ]</button>
     </div>
 
     <div class="mission-display" id="missionDisplay">
-      <div class="empty flicker">// aguardando contrato //</div>
+      <div class="empty flicker">// selecione filtros e sorteie //</div>
     </div>
 
-    <div class="divider"><span class="divider-text">arquivo de contratos</span></div>
+    <div class="divider"><span class="divider-text">lista de exercícios</span></div>
     <div class="mission-list" id="missionList"></div>
   </div>
 
@@ -474,7 +474,7 @@ body::after{
     </div>
   </div>
 
-  <div class="footer flicker">draw ops // v3.0 // acesso restrito</div>
+  <div class="footer flicker">draw ops // v3.1 // sistema de prática</div>
 </div>
 
 <!-- INSTALL BANNER -->
@@ -492,16 +492,16 @@ body::after{
 // CONFIGURAÇÃO: NÍVEIS
 // ════════════════════════════════════════════════════════════
 const RANKS = [
-  { title:'Aprendiz',          xp:0    },
-  { title:'Rascunhador',       xp:100  },
+  { title:'Iniciante',         xp:0    },
+  { title:'Esboçador',         xp:100  },
   { title:'Traço Firme',       xp:250  },
-  { title:'Artista em Campo',  xp:500  },
-  { title:'Agente Visual',     xp:900  },
-  { title:'Mercenária Grau-2', xp:1400 },
-  { title:'Mercenária Grau-3', xp:2000 },
+  { title:'Observador',        xp:500  },
+  { title:'Artista em Campo',  xp:900  },
+  { title:'Desenhista Ativo',  xp:1400 },
+  { title:'Ilustrador',        xp:2000 },
   { title:'Especialista',      xp:2800 },
   { title:'Mestre de Concept', xp:3800 },
-  { title:'Lenda de Nova Voraz', xp:5000 },
+  { title:'Referência',        xp:5000 },
 ];
 
 const XP_VALUES = { facil:25, medio:60, dificil:120 };
@@ -942,7 +942,7 @@ function updateXPPanel() {
   const nxt = RANKS[ri + 1];
 
   document.getElementById('xpRank').textContent    = cur.title;
-  document.getElementById('headerSub').textContent = `${cur.title.toLowerCase()} — ${state.done.length} missões concluídas`;
+  document.getElementById('headerSub').textContent = `${cur.title.toLowerCase()} — ${state.done.length} exercícios concluídos`;
 
   if (nxt) {
     const pct = Math.min(100, ((xp - cur.xp) / (nxt.xp - cur.xp)) * 100);
@@ -1052,8 +1052,7 @@ function completeMission(m) {
   updateXPPanel();
   renderList();
   showMission(m, false);
-  toast(`+${XP_VALUES[m.diff]} XP — ${m.title}`, 'ok');
-}
+  toast(`+${XP_VALUES[m.diff]} XP — ${m.title}`, 'ok');}
 
 // ════════════════════════════════════════════════════════════
 // ROLL
@@ -1072,7 +1071,7 @@ function rollMission() {
 function renderList() {
   const filtered = getFiltered();
   document.getElementById('filterCount').innerHTML =
-    `<span>${filtered.length}</span> de ${missions.length} missões`;
+    `<span>${filtered.length}</span> de ${missions.length} exercícios`;
 
   document.getElementById('missionList').innerHTML = filtered.map(m => {
     const done = state.done.includes(m.id);
