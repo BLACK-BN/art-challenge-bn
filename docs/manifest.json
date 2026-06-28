@@ -1,7 +1,7 @@
 {
-  "name": "Nova Voraz — Missões",
-  "short_name": "NV Missões",
-  "description": "Sistema de missões de desenho",
+  "name": "Ateliê — espaço do artista",
+  "short_name": "Ateliê",
+  "description": "Sistema pessoal de prática de desenho",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0b0f",
